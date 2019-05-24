@@ -1,5 +1,5 @@
 <?php
-	include_once('mysql.php');
+	include_once('MySQL.php');
 	
 	$mysql = new MySQL('host', 'user', 'password', 'database');
 	
