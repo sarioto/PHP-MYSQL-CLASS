@@ -71,9 +71,9 @@ class MySQL {
         $where = $this->where;
         foreach($info as $row => $value){
             if(empty($where)){
-                $where = sprintf("WHERE `%s`='%s'", $row, mysqli_real_escape_string($value));
+                $where = sprintf("WHERE `%s`='%s'", $row, mysqli_real_escape_string($link, $value));
             }else{
-                $where .= sprintf(" %s `%s`='%s'", $type, $row, mysqli_real_escape_string($value));
+                $where .= sprintf(" %s `%s`='%s'", $type, $row, mysqli_real_escape_string($link, $value));
             }
         }
         $this->where = $where;
@@ -262,7 +262,7 @@ class MySQL {
         $values = '';
         foreach($data as $col => $value){
             $fields .= sprintf("`%s`,", $col);
-            $values .= sprintf("'%s',", mysqli_real_escape_string($value));
+            $values .= sprintf("'%s',", mysqli_real_escape_string($link, $value));
         }
         $fields = substr($fields, 0, -1);
         $values = substr($values, 0, -1);
@@ -283,7 +283,7 @@ class MySQL {
             $link =& self::connection();
             $update = '';
             foreach($info as $col => $value){
-                $update .= sprintf("`%s`='%s', ", $col, mysqli_real_escape_string($value));
+                $update .= sprintf("`%s`='%s', ", $col, mysqli_real_escape_string($link, $value));
             }
             $update = substr($update, 0, -2);
             $sql = sprintf("UPDATE %s SET %s%s", $table, $update, self::extra());
