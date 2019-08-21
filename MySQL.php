@@ -234,7 +234,7 @@ class MySQL {
         self::set('last_query', $sql);
 
         if(!($result = mysqli_query($link,$sql))){
-            throw new Exception('Error executing MySQL query: '.$sql.'. MySQL error '.mysqli_errno().': '.mysqli_error());
+            throw new Exception('Error executing MySQL query: '.$sql.'. MySQL error '.mysqli_errno($link).': '.mysqli_error($link));
             $data = false;
         }elseif($result instanceof mysqli_result){
             $num_rows = mysqli_num_rows($result);
@@ -269,9 +269,9 @@ class MySQL {
         $sql = sprintf("INSERT INTO %s (%s) VALUES (%s)", $table, $fields, $values);
         self::set('last_query', $sql);
         if(!mysqli_query($link,$sql)){
-            throw new Exception('Error executing MySQL query: '.$sql.'. MySQL error '.mysqli_errno().': '.mysqli_error());
+            throw new Exception('Error executing MySQL query: '.$sql.'. MySQL error '.mysqli_errno($link).': '.mysqli_error($link));
         }else{
-            self::set('insert_id', mysqli_insert_id());
+            self::set('insert_id', mysqli_insert_id($link));
             return true;
         }
     }
@@ -289,7 +289,7 @@ class MySQL {
             $sql = sprintf("UPDATE %s SET %s%s", $table, $update, self::extra());
             self::set('last_query', $sql);
             if(!mysqli_query($link,$sql)){
-                throw new Exception('Error executing MySQL query: '.$sql.'. MySQL error '.mysqli_errno().': '.mysqli_error());
+                throw new Exception('Error executing MySQL query: '.$sql.'. MySQL error '.mysqli_errno($link).': '.mysqli_error($link));
             }else{
                 return true;
             }
@@ -304,7 +304,7 @@ class MySQL {
             $sql = sprintf("DELETE FROM %s%s", $table, self::extra());
             self::set('last_query', $sql);
             if(!mysqli_query($link,$sql)){
-                throw new Exception('Error executing MySQL query: '.$sql.'. MySQL error '.mysqli_errno().': '.mysqli_error());
+                throw new Exception('Error executing MySQL query: '.$sql.'. MySQL error '.mysqli_errno($link).': '.mysqli_error($link));
             }else{
                 return true;
             }
