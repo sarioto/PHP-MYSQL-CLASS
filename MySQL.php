@@ -1,6 +1,7 @@
 <?php
-class MySQL {
-    
+
+class Mysql
+{
     private $link = null;
     private $info = array(
         'last_query' => null,
@@ -11,6 +12,7 @@ class MySQL {
     
     private $where;
     private $limit;
+    private $offset;
     private $join;
     private $order;
     
@@ -23,16 +25,16 @@ class MySQL {
     }
     
     /**
-    * Setter method
-    */
+     * Setter method
+     */
     
     private function set($field, $value){
         $this->info[$field] = $value;
     }
     
     /**
-    * Getter methods
-    */
+     * Getter methods
+     */
     
     public function last_query(){
         return $this->info['last_query'];
@@ -47,8 +49,8 @@ class MySQL {
     }
     
     /**
-    * Create or return a connection to the MySQL server.
-    */
+     * Create or return a connection to the MySQL server.
+     */
     
     private function connection(){
         if(!is_resource($this->link) || empty($this->link)){
@@ -63,11 +65,11 @@ class MySQL {
     }
     
     /**
-    * MySQL Where methods
-    */
+     * MySQL Where methods
+     */
     
     private function __where($info, $type = 'AND'){
-        $link =& self::connection();
+        $link = self::connection();
         $where = $this->where;
         foreach($info as $row => $value){
             if(empty($where)){
@@ -94,22 +96,18 @@ class MySQL {
         }
         $this->join = $join;
     }
-
     public function join($table, $condition) {
         self::__join($table, $condition);
         return $this;
     }
-
     public function leftJoin($table, $condition) {
         self::__join($table, $condition, 'LEFT');
         return $this;
     }
-
     public function rightJoin($table, $condition) {
         self::__join($table, $condition, 'RIGHT');
         return $this;
     }
-
     public function crossJoin($table, $condition) {
         self::__join($table, $condition, 'CROSS');
         return $this;
@@ -138,8 +136,8 @@ class MySQL {
     }
     
     /**
-    * MySQL limit method
-    */
+     * MySQL limit method
+     */
     
     public function limit($limit){
         $this->limit = 'LIMIT '.$limit;
@@ -147,8 +145,16 @@ class MySQL {
     }
     
     /**
-    * MySQL Order By method
-    */
+     * MySQL OFFSET method
+     */
+    public function offset($offset){
+        $this->offset="OFFSET ".$offset;
+        return $this;
+    }
+    
+    /**
+     * MySQL Order By method
+     */
     
     public function order_by($by, $order_type = 'DESC'){
         $order = $this->order;
@@ -176,8 +182,8 @@ class MySQL {
     }
     
     /**
-    * MySQL query helper
-    */
+     * MySQL query helper
+     */
     
     private function extra(){
         $extra = '';
@@ -185,20 +191,26 @@ class MySQL {
         if(!empty($this->join)) $extra .= ' '.$this->join;
         if(!empty($this->order)) $extra .= ' '.$this->order;
         if(!empty($this->limit)) $extra .= ' '.$this->limit;
+        if(empty($this->offset)&&!empty($this->limit))$extra .= ' ';
+        
+        if(!empty($this->offset)&&(/* !empty($this->where)|| */!empty($this->limit))) $extra .= ' '.$this->offset;
+        elseif (!empty($this->offset)) $extra .= ' LIMIT 18446744073709551615 '.$this->offset;
+        
         // cleanup
         $this->where = null;
         $this->join = null;
         $this->order = null;
         $this->limit = null;
+        $this->offset = null;
         return $extra;
     }
     
     /**
-    * MySQL Query methods
-    */
+     * MySQL Query methods
+     */
     
     public function query($qry, $return = false){
-        $link =& self::connection();
+        $link = self::connection();
         self::set('last_query', $qry);
         $result = mysqli_query($link, $qry);
         if($result instanceof mysqli_result){
@@ -222,7 +234,7 @@ class MySQL {
     }
     
     public function get($table, $select = '*'){
-        $link =& self::connection();
+        $link = self::connection();
         if(is_array($select)){
             $cols = '';
             foreach($select as $col){
@@ -232,7 +244,6 @@ class MySQL {
         }
         $sql = sprintf("SELECT %s FROM %s%s", $select, $table, self::extra());
         self::set('last_query', $sql);
-
         if(!($result = mysqli_query($link,$sql))){
             throw new Exception('Error executing MySQL query: '.$sql.'. MySQL error '.mysqli_errno($link).': '.mysqli_error($link));
             $data = false;
@@ -241,7 +252,8 @@ class MySQL {
             self::set('num_rows', $num_rows);
             if($num_rows === 0){
                 $data = false;
-            }elseif(preg_match('/LIMIT 1/', $sql)){
+                /*todo modify space*/
+            }elseif(preg_match('/LIMIT 1 /', $sql) || $num_rows===1){
                 $data = mysqli_fetch_assoc($result);
             }else{
                 $data = array();
@@ -257,7 +269,7 @@ class MySQL {
     }
     
     public function insert($table, $data){
-        $link =& self::connection();
+        $link = self::connection();
         $fields = '';
         $values = '';
         foreach($data as $col => $value){
@@ -280,7 +292,7 @@ class MySQL {
         if(empty($this->where)){
             throw new Exception("Where is not set. Can't update whole table.");
         }else{
-            $link =& self::connection();
+            $link = self::connection();
             $update = '';
             foreach($info as $col => $value){
                 $update .= sprintf("`%s`='%s', ", $col, mysqli_real_escape_string($link, $value));
@@ -300,7 +312,7 @@ class MySQL {
         if(empty($this->where)){
             throw new Exception("Where is not set. Can't delete whole table.");
         }else{
-            $link =& self::connection();
+            $link = self::connection();
             $sql = sprintf("DELETE FROM %s%s", $table, self::extra());
             self::set('last_query', $sql);
             if(!mysqli_query($link,$sql)){
@@ -310,5 +322,6 @@ class MySQL {
             }
         }
     }
-    
 }
+
+?>

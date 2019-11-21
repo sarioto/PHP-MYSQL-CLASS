@@ -30,6 +30,13 @@
 	}catch(Exception $e){
 		echo 'Caught exception: ', $e->getMessage();
 	}
+	// get post after offset 10 rowes
+	try{
+		$post = $mysql->->offset(10)->get('posts');
+		print_r($post);
+	}catch(Exception $e){
+		echo 'Caught exception: ', $e->getMessage();
+	}
 	
 	// get post with an id of 1
 	try{
