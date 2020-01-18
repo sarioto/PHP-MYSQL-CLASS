@@ -66,7 +66,7 @@
     // get all posts by the author of "John Doe" and author name
     // available join methods 'join' (inner join), 'leftJoin', 'rightJoin', 'crossJoin'
 	try{
-		$posts = $mysql->where(array('author' => 'John Doe'))->join('authors')->get('posts', ['posts.*', 'author.name']);
+		$posts = $mysql->where(array('author' => 'John Doe'))->join('authors', 'AND')->get('posts', ['posts.*', 'author.name']);
 		print_r($posts);
 	}catch(Exception $e){
 		echo 'Caught exception: ', $e->getMessage();
