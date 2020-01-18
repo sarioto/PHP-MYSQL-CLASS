@@ -14,7 +14,7 @@
 	
 	// get all post titles and authors
 	try{
-		$posts = $mysql->get('posts', array('title', 'author');
+		$posts = $mysql->get('posts', array('title', 'author'));
 		// or
 		$posts = $mysql->get('posts', 'title,author');
 		print_r($posts);
