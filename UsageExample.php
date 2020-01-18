@@ -39,7 +39,7 @@
 	}
 	// get post after offset 10 rowes
 	try{
-		$post = $mysql->->offset(10)->get('posts');
+		$post = $mysql->offset(10)->get('posts');
 		print_r($post);
 	}catch(Exception $e){
 		echo 'Caught exception: ', $e->getMessage();
